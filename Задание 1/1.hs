@@ -28,7 +28,7 @@ a <*> b = BinaryTerm a Mult b
 
 replaceVar :: Term -> String -> Term -> Term
 replaceVar (IntConstant intValue) _ _ = IntConstant intValue
-replaceVar (Variable varName) var term = if varName == varName then term else Variable varName
+replaceVar (Variable varName) var term = if varName == var then term else Variable varName
 replaceVar (UnaryTerm op trm) var term = UnaryTerm op $ replaceVar trm var term
 replaceVar (BinaryTerm lhv op rhv) var term =
   BinaryTerm (replaceVar lhv var term) op (replaceVar rhv var term)
