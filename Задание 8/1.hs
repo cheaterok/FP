@@ -50,18 +50,36 @@ instance Integral Dyn where
 getFun :: Dyn -> (Dyn -> Dyn)
 getFun (Fun x) = x
 
+apply :: Dyn -> Dyn -> Dyn
+apply (Fun f) x = f x
+
 -- Комбинаторы
 -- https://en.wikipedia.org/wiki/SKI_combinator_calculus#Informal_description
-_I :: Dyn -> Dyn
-_I = id
+_I :: Dyn
+_I = Fun id
 
 _K :: Dyn
 _K = Fun (\v -> Fun (\_ -> v))
 
+-- Старый вариант
+_S' :: Dyn -> Dyn -> Dyn -> Dyn
+_S' (Fun x) (Fun y) z = (\res -> getFun (x z) res) (y z)
+
 _S :: Dyn -> Dyn -> Dyn -> Dyn
-_S (Fun x) (Fun y) z = (\res -> getFun (x z) res) (y z)
+_S x y z = apply (apply x z) (apply y z)
 
 testList = [Number 5, Str "testing", List [Str "TestInnerList", Str "TestInnerList2"], Fun id]
 
-test_I = map _I testList
+test_I = map (apply _I) testList
 test_S = map (\v -> _S _K _K v) testList
+
+
+_S_I_I' :: Dyn -> Dyn
+_S_I_I' x = apply x x
+
+_S_I_I :: Dyn -> Dyn
+_S_I_I = _S _I _I
+
+-- _S _I _I _I д.б. равно _I
+testSII' = apply (_S_I_I' _I) (Number 42)
+testSII = apply (_S_I_I _I) (Number 42)
