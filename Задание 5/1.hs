@@ -1,4 +1,4 @@
-import Prelude hiding (head, last, init, tail)
+import Prelude hiding (head, last, init, tail, (<*>))
 import Control.Lens hiding (op)
 
 import Term
@@ -20,6 +20,23 @@ var = lens varName (\term newVar -> term {varName = newVar})
 varTestTerm = Variable "Testing"
 varGet = varTestTerm^.var
 varSet = varTestTerm & var .~ "Tested"
+
+-- BinaryTerm с наивысшим приоритетом
+leftMostMajorOp :: Lens' Term Term
+leftMostMajorOp = lens leftMostMajorOpGetter leftMostMajorOpSetter
+
+leftMostMajorOpTest = ((IntConstant 10) <-> (IntConstant 5)) <*> ((IntConstant 6) <*> (IntConstant 4))
+leftMostMajorOpGet = leftMostMajorOpTest^.leftMostMajorOp
+leftMostMajorOpSet = leftMostMajorOpTest & leftMostMajorOp .~ (Variable "Test")
+
+-- Самый последний неделимый терм (IntConstant или Variable)
+rightMostTerm :: Lens' Term Term
+rightMostTerm = lens rightMostTermGetter rightMostTermSetter
+
+rightMostTermTest = ((IntConstant 10) <-> (IntConstant 5)) <*> ((IntConstant 6) <*> (IntConstant 4))
+rightMostTermGet = rightMostTermTest^.rightMostTerm
+rightMostTermSet = rightMostTermTest & rightMostTerm .~ (Variable "Test")
+
 
 -- Первый элемент RList
 head :: Lens' (ReverseList a) a
